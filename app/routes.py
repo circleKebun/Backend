@@ -6,6 +6,7 @@ from app.model.user import User
 from app.model.wallet import Wallet
 from app.model.transaksi import Transaksi
 
+from werkzeug.security import generate_password_hash, check_password_hash
 
 @app.route('/users', methods=['GET'])
 def get_all_user():
@@ -26,11 +27,13 @@ def get_all_user():
 @app.route('/users', methods = ['POST'])
 def create_user():
     data = request.get_json()
+    
+    password_hash = generate_password_hash(data['password'])
 
     user_baru = User(
         username = data['username'],
         email = data['email'],
-        password = data['password']
+        password = password_hash
     )
     
     try:
@@ -195,3 +198,25 @@ def hapus_transaksi(transaksi_id):
         db.session.rollback()
         return jsonify({"pesan": "Gagal hapus transaksi", "error":str(e)}),400
     
+
+#login authentication
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+
+    email_input = data['email']
+    password_input = data['password']
+
+    user = User.query.filter_by(email=email_input).first()
+
+    if not user:
+        return jsonify({"pesan": "user tidak terdaftar"}),401
+
+    if check_password_hash(user.password, password_input):
+        return jsonify({
+            "pesan":"Login Berhasil",
+            "user_id": user.user_id,
+            "username" : user.username
+        }),200
+    else:
+        return jsonify({"pesan": "password salah!"}), 401
