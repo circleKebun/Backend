@@ -1,0 +1,13 @@
+# Abaikan folder virtual environment (karena ukurannya besar & beda tiap OS)
+.venv/
+venv/
+
+# Abaikan file rahasia (PENTING BANGET!)
+.env
+
+# Abaikan file sampah Python
+__pycache__/
+*.pyc
+
+# Abaikan folder VS Code setting
+.vscode/
